@@ -26,7 +26,6 @@ font_path = os.path.join(BASE_DIR, "fonts", "NotoSansArabic-Bold.ttf")
 
 pdfmetrics.registerFont(TTFont('Arabic', font_path))
 import io
-from weasyprint import HTML
 from openpyxl import Workbook
 
 
@@ -437,51 +436,71 @@ def edit_employee(id):
     conn.close()
     return render_template('edit_employee.html', employee=employee)
 
-@app.route('/download_report')
-def download_report():
-      if not session.get('logged_in'):
-          return redirect(url_for('login'))
+@app.route('/download_report/pdf')
+def download_report_pdf():
+    if not session.get('logged_in'):
+        return redirect(url_for('login'))
 
-      conn = get_db_connection()
-      data = conn.execute('SELECT * FROM employees ORDER BY name').fetchall()
-      conn.close()
+    conn = get_db_connection()
+    data = conn.execute('SELECT * FROM employees ORDER BY name').fetchall()
+    conn.close()
 
-      # Create Excel workbook
-      wb = Workbook()
-      ws = wb.active
-      ws.title = "Employees"
+    buffer = io.BytesIO()
 
-      # Headers (Arabic)
-      headers = ['ID', 'الاسم' ,'الوظيفه' ,'القسم' ,'الراتب','العنوان']
-      ws.append(headers)
+    doc = SimpleDocTemplate(buffer, pagesize=letter)
 
-      # Style header row
-      for cell in ws[1]:
-          cell.font = openpyxl.styles.Font(bold=True, color="FFFFFF")
-          cell.fill = openpyxl.styles.PatternFill(start_color="0b1c8c", end_color="0b1c8c", fill_type="solid")
+    elements = []
+    styles = getSampleStyleSheet()
 
-      # Add data rows
-      for row in data:
-          ws.append([
-    row["id"],
-    row["name"],
-    row["department"],
-    row["position"],
-    row["salary"],
-    row["address"]
-])
+    # عنوان
+    elements.append(Paragraph("Employee Report", styles['Title']))
+    elements.append(Spacer(1, 12))
 
-      # Save to BytesIO
-      output = io.BytesIO()
-      wb.save(output)
-      output.seek(0)
+    # جدول البيانات
+    table_data = []
 
-      return send_file(
-          output,
-          mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-          as_attachment=True,
-          download_name='employee_report.xlsx'
-      )
+    # Header
+    table_data.append([
+        "ID", "Name", "Department", "Position", "Salary", "Address"
+    ])
+
+    # Rows
+    for row in data:
+        table_data.append([
+            row["id"],
+            row["name"],
+            row["department"],
+            row["position"],
+            row["salary"],
+            row["address"]
+        ])
+
+    table = Table(table_data)
+
+    table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, -1), 'Arabic'),
+
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 10),
+
+        ('GRID', (0, 0), (-1, -1), 1, colors.black),
+    ]))
+
+    elements.append(table)
+
+    doc.build(elements)
+
+    buffer.seek(0)
+
+    return send_file(
+        buffer,
+        as_attachment=True,
+        download_name="employee_report.pdf",
+        mimetype='application/pdf'
+    )
 @app.route('/employee/login', methods=['GET', 'POST'])
 def employee_login():
     """تسجيل دخول الموظف للبوابة الذاتية"""
