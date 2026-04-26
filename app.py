@@ -20,7 +20,9 @@ from werkzeug.security import check_password_hash, generate_password_hash
 import csv
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
-pdfmetrics.registerFont(TTFont('Arabic', r'C:\Windows\Fonts\arial.ttf'))
+pdfmetrics.registerFont(
+    TTFont('Arabic', '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf')
+)
 import io
 from weasyprint import HTML
 from openpyxl import Workbook
