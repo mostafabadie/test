@@ -3,29 +3,27 @@ FROM python:3.11-slim
 WORKDIR /app
 
 # =========================
-# System dependencies (WeasyPrint + rendering)
+# System dependencies (FIX WeasyPrint completely)
 # =========================
 RUN apt-get update && apt-get install -y \
     libpango-1.0-0 \
     libcairo2 \
     libgdk-pixbuf2.0-0 \
-    libffi-dev \
+    libglib2.0-0 \
+    libgobject-2.0-0 \
     shared-mime-info \
     fonts-dejavu \
     && rm -rf /var/lib/apt/lists/*
 
 # =========================
-# Python dependencies
+# Python deps
 # =========================
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # =========================
-# Copy project files
+# App
 # =========================
 COPY . .
 
-# =========================
-# Run Flask with Gunicorn
-# =========================
 CMD ["gunicorn", "app:app", "-b", "0.0.0.0:8080", "--workers", "2"]
