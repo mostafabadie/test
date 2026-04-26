@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 DB_PATH = "hr.db"
 
 FIRST_NAMES = [
-    "Ahmed","Mohamed","Mahmoud","Mostafa","Youssef","Omar","Ali","Ibrahim","Khaled","Hassan",
+"Ahmed","Mohamed","Mahmoud","Mostafa","Youssef","Omar","Ali","Ibrahim","Khaled","Hassan",
 "Hussein","Tarek","Amr","Walid","Karim","Islam","Marwan","Hesham","Sherif","Ayman",
 "Abdelrahman","Abdelaziz","Abdullah","Saeed","Hamdy","Magdy","Bassem","Adel","Nader","Tamer","Sameh","Wael","Hany","Shady","Fady",
 "Ramy","Samir","Ashraf","Sabry","Lotfy","Zaki","Fouad","Gamal","Salah","Farouk",
@@ -121,15 +121,6 @@ FIRST_NAMES = [
     "Ohan", "Ohanna", "Ohanne", "Ohel", "Ohela", "Ohelah", "Ohelen", "Ohella",
     "Ohera", "Ohiana", "Ohini", "Ohma", "Ohmd", "Ohna", "Ohndrea", "Ohndreea",
     "Ohndreia", "Ohndreya", "Ohndria", "Ohndriah", "Ohndriana", "Ohndrianna",
-    "Ohndriannah", "Ohndrie", "Ohndrielle", "Ohndrina", "Ohndrine", "Ohndrya",
-    "Ohndryah", "Ohndryana", "Ohndryanna", "Ohndryannah", "Ohndrye", "Ohndryelle",
-    "Ohndryna", "Ohndryne", "Ohndrya", "Ohndryah", "Ohndryana", "Ohndryanna",
-    "Ohndryannah", "Ohndrye", "Ohndryelle", "Ohndryna", "Ohndryne", "Ohndrya",
-    "Ohndryah", "Ohndryana", "Ohndryanna", "Ohndryannah", "Ohndrye", "Ohndryelle",
-    "Ohndryna", "Ohndryne", "Ohni", "Ohnia", "Ohnora", "Ohnore", "Ohnri", "Ohnria",
-    "Ohnriah", "Ohnriana", "Ohnrianna", "Ohnriannah", "Ohnrie", "Ohnrielle",
-    "Ohnrina", "Ohnrine", "Ohnrya", "Ohnryah", "Ohnryana", "Ohnryanna", "Ohnryannah",
-    "Ohnrye", "Ohnryelle", "Ohnryna", "Ohnryne", "Ohnrya", "Ohnryah", "Ohnryana",
     "Ohnryanna", "Ohnryannah", "Ohnrye", "Ohnryelle", "Ohnryna", "Ohnry""Kalthoom", "Kamaliyah", "Kamilah", "Kanar", "Kanza", "Karima", "Karine",
     "Karma", "Karolina", "Katherine", "Kawthar", "Kayan", "Kayla", "Kazimah",
     "Kenda", "Kenzy", "Kenza", "Khadija", "Khadijah", "Khair", "Khairat",
@@ -152,7 +143,8 @@ FIRST_NAMES = [
     "Marija", "Mariya", "Mariyah", "Mariz", "Marj", "Marjani", "Marjem",
     "Marlo", "Marlyn", "Marnie", "Maroa", "Mars", "Marsha", "Marsil",
     "Marta", "Martha", "Marwa", "Marwah", "Mary", "Marya", "Maryah"
-]
+]        #600 اسم
+
 LAST_NAMES = [
     "Hassan","Ibrahim","Mahmoud","Ali","Mostafa","Abdelrahman","Abdelaziz","Abdullah","Elsayed","Farouk",
 "Soliman","Gamal","Salah","Hamdan","Zaki","Fathy","Kamel","Ragab","Saad","Shaban",
@@ -194,7 +186,7 @@ LAST_NAMES = [
 "Abdelwahaby","Abouelkhair","Abouelnaga","Abouelnour","Adawyh","Aggoury","Arafaty","Ashmawyy","Attallahy","Azzamy",
 "Badrany","Bahgaty","Bakheety","Barakatyy","Bedeiryh","Bekhity","Beltagyyh","Bisharay","Boutrosy","Darwishy",
 "Desoukyy","Dossy","Ebeidy","Eldeeby","Elfeky","Elgendyy","Elgoharyy","Elhaddady","Elhamyy","Elkashefy","Badie","Elmezain"
-]
+]#300 اسم
 
 EGYPT_GOVS = [
     "Cairo", "Giza", "Alexandria", "Qalyubia", "Sharqia", "Gharbia",
@@ -202,163 +194,6 @@ EGYPT_GOVS = [
     "Aswan", "Luxor", "Beni Suef", "Fayoum", "Ismailia", "Port Said",
     "Suez", "Red Sea", "Matrouh", "North Sinai", "South Sinai",
 ]
-
-
-def generate_fake_attendance(cur, employee_ids, days=30):
-    """إنشاء حضور وانصراف عشوائي لعدد من الأيام الماضية لكل موظف"""
-    today = datetime.today().date()
-    for emp_id in employee_ids:
-        for d in range(days):
-            # احتمال حضور في هذا اليوم
-            if random.random() < 0.7:
-                day = today - timedelta(days=d)
-                date_str = day.strftime("%Y-%m-%d")
-                # وقت حضور بين 8 و10 صباحاً
-                in_hour = random.randint(8, 10)
-                in_min = random.randint(0, 59)
-                check_in = f"{in_hour:02d}:{in_min:02d}:00"
-                # وقت انصراف بين 15 و18 مساءً
-                out_hour = random.randint(15, 18)
-                out_min = random.randint(0, 59)
-                check_out = f"{out_hour:02d}:{out_min:02d}:00"
-                cur.execute(
-                    """
-                    INSERT INTO attendance (employee_id, date, check_in, check_out)
-                    VALUES (?, ?, ?, ?)
-                    """,
-                    (emp_id, date_str, check_in, check_out),
-                )
-
-
-def rating_to_score(rating: str) -> float:
-    mapping = {
-        "ممتاز": 5.0,
-        "جيد جداً": 4.0,
-        "جيد": 3.0,
-        "مقبول": 2.0,
-        "ضعيف": 1.0,
-    }
-    return mapping.get(rating, 0.0)
-
-
-def score_to_rating(score: float) -> str:
-    if score >= 4.5:
-        return "ممتاز"
-    elif score >= 3.5:
-        return "جيد جداً"
-    elif score >= 2.5:
-        return "جيد"
-    elif score >= 1.5:
-        return "مقبول"
-    else:
-        return "ضعيف"
-
-
-def generate_fake_evaluations(cur, employee_ids):
-    """إنشاء تقييمات أداء عشوائية للموظفين"""
-    # الحصول على الفترات التقييمية
-    periods = cur.execute("SELECT id FROM evaluation_periods").fetchall()
-    if not periods:
-        return  # لا توجد فترات، لا ننشئ تقييمات
-
-    # الحصول على معايير التقييم
-    criteria = cur.execute(
-        "SELECT id, weight FROM evaluation_criteria WHERE is_active = 1"
-    ).fetchall()
-    if not criteria:
-        return  # لا توجد معايير، لا ننشئ تقييمات
-
-    ratings = ["ممتاز", "جيد جداً", "جيد", "مقبول", "ضعيف"]
-
-    for emp_id in employee_ids:
-        # احتمال أن هذا الموظف يكون له تقييم (مثلاً 60%)
-        if random.random() > 0.6:
-            continue
-
-        period_id = random.choice(periods)[0]
-
-        # عدم إنشاء أكثر من تقييم لنفس الموظف في نفس الفترة
-        existing = cur.execute(
-            """
-            SELECT id FROM performance_evaluations
-            WHERE employee_id = ? AND period_id = ?
-            """,
-            (emp_id, period_id),
-        ).fetchone()
-        if existing:
-            continue
-
-        total_score = 0.0
-        total_weight = 0.0
-        details = []
-
-        for crit_id, weight in criteria:
-            rating = random.choice(ratings)
-            score = rating_to_score(rating)
-            w = weight if weight is not None else 1.0
-            total_score += score * w
-            total_weight += w
-            details.append((crit_id, rating, score))
-
-        if total_weight == 0:
-            continue
-
-        overall_score = total_score / total_weight
-        overall_rating = score_to_rating(overall_score)
-
-        strengths = "أداء قوي في معظم المعايير."
-        areas_for_improvement = "يمكن تحسين بعض المهارات."
-        goals_next_period = "تطوير المهارات الفنية والالتزام بالمواعيد."
-        comments = "تقييم وهمي لأغراض الاختبار."
-
-        # إنشاء التقييم الرئيسي
-        cur.execute(
-            """
-            INSERT INTO performance_evaluations
-            (employee_id, period_id, evaluator_id, overall_rating, overall_score,
-             strengths, areas_for_improvement, goals_next_period, comments, status)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """,
-            (
-                emp_id,
-                period_id,
-                1,  # مقيم افتراضي
-                overall_rating,
-                overall_score,
-                strengths,
-                areas_for_improvement,
-                goals_next_period,
-                comments,
-                "completed",
-            ),
-        )
-        eval_id = cur.lastrowid
-
-        # تفاصيل التقييم
-        for crit_id, rating, score in details:
-            cur.execute(
-                """
-                INSERT INTO evaluation_details
-                (evaluation_id, criteria_id, rating, score, comments)
-                VALUES (?, ?, ?, ?, ?)
-                """,
-                (eval_id, crit_id, rating, score, ""),
-            )
-
-        # سجل التاريخ (لو الجدول موجود)
-        try:
-            cur.execute(
-                """
-                INSERT INTO evaluation_history
-                (evaluation_id, action, changed_by, notes)
-                VALUES (?, 'created', ?, 'تم إنشاء تقييم وهمي')
-                """,
-                (eval_id, 1),
-            )
-        except sqlite3.OperationalError:
-            # في حال عدم وجود جدول التاريخ
-            pass
-
 
 def create_fake_employees(n=250000):
     conn = sqlite3.connect(DB_PATH)
@@ -384,7 +219,7 @@ def create_fake_employees(n=250000):
         base_name = f"{first} {medium} {last}"
         name = base_name
 
-        # لو الاسم موجود بالفعل، جرّب تضيف رقم عشوائي في الآخر لغاية ما يظبط
+        #لو الاسم موجود بالفعل، جرّب تضيف رقم عشوائي في الآخر 
         suffix_try = 0
         while True:
             department = random.choice(departments)
@@ -420,15 +255,9 @@ def create_fake_employees(n=250000):
     ).fetchall()
     new_employee_ids = [r[0] for r in new_ids_rows]
 
-    # إنشاء حضور/انصراف وهمي وتقييمات وهمية للموظفين الجدد
-    if new_employee_ids:
-        generate_fake_attendance(cur, new_employee_ids, days=30)
-        generate_fake_evaluations(cur, new_employee_ids)
-
     conn.commit()
     conn.close()
     print(f"Inserted {created} employees with Egyptian addresses, attendance, and evaluations.")
-
 
 if __name__ == "__main__":
     create_fake_employees(250000)

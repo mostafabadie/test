@@ -1,6 +1,5 @@
-from flask import Flask, render_template, request, redirect, send_file, url_for, session,flash
+from flask import Flask, render_template, request, redirect, send_file, url_for, session,flash,Response,render_template_string,send_file
 import os
-from flask import send_file, session, redirect, url_for, Response
 import openpyxl
 from werkzeug.utils import secure_filename
 import sqlite3
@@ -22,10 +21,11 @@ import csv
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 pdfmetrics.registerFont(TTFont('Arabic', r'C:\Windows\Fonts\arial.ttf'))
-from flask import render_template_string, send_file, session, redirect, url_for
 import io
 from weasyprint import HTML
 from openpyxl import Workbook
+
+
 app = Flask(__name__)
 app.secret_key = "secret123"
 
@@ -97,7 +97,7 @@ def ensure_payroll_schema():
     conn = sqlite3.connect('hr.db')
     c = conn.cursor()
 
-    # جدول الرواتب (قد يكون موجوداً بالفعل في قواعد قديمة)
+    # جدول الرواتب 
     c.execute("""
         CREATE TABLE IF NOT EXISTS payrolls (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -112,7 +112,7 @@ def ensure_payroll_schema():
         )
     """)
 
-    # إضافة أعمدة ناقصة إن كانت القاعدة قديمة
+    # إضافة أعمدة ناقصة 
     cols = [r[1] for r in c.execute("PRAGMA table_info(payrolls)").fetchall()]
     def add_col(name, ddl):
         if name not in cols:
@@ -140,7 +140,7 @@ def ensure_payroll_schema():
     conn.commit()
     conn.close()
 
-# تشغيل الإنشاء قبل أي شيء
+# تشغيل الإنشاء
 init_db()
 ensure_employee_portal_columns()
 ensure_payroll_schema()
