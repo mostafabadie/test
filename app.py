@@ -436,8 +436,8 @@ def edit_employee(id):
     conn.close()
     return render_template('edit_employee.html', employee=employee)
 
-@app.route('/download_report/pdf')
-def download_report_pdf():
+@app.route('/download_report/excel')
+def download_report_excel():
     if not session.get('logged_in'):
         return redirect(url_for('login'))
 
@@ -445,28 +445,22 @@ def download_report_pdf():
     data = conn.execute('SELECT * FROM employees ORDER BY name').fetchall()
     conn.close()
 
-    buffer = io.BytesIO()
-
-    doc = SimpleDocTemplate(buffer, pagesize=letter)
-
-    elements = []
-    styles = getSampleStyleSheet()
-
-    # عنوان
-    elements.append(Paragraph("Employee Report", styles['Title']))
-    elements.append(Spacer(1, 12))
-
-    # جدول البيانات
-    table_data = []
+    # إنشاء ملف Excel
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Employees"
 
     # Header
-    table_data.append([
-        "ID", "Name", "Department", "Position", "Salary", "Address"
-    ])
+    headers = ["ID", "Name", "Department", "Position", "Salary", "Address"]
+    ws.append(headers)
 
-    # Rows
+    # تنسيق الهيدر
+    for cell in ws[1]:
+        cell.font = openpyxl.styles.Font(bold=True)
+    
+    # البيانات
     for row in data:
-        table_data.append([
+        ws.append([
             row["id"],
             row["name"],
             row["department"],
@@ -475,31 +469,16 @@ def download_report_pdf():
             row["address"]
         ])
 
-    table = Table(table_data)
-
-    table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
-        ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
-
-        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-        ('FONTNAME', (0, 0), (-1, -1), 'Arabic'),
-
-        ('BOTTOMPADDING', (0, 0), (-1, 0), 10),
-
-        ('GRID', (0, 0), (-1, -1), 1, colors.black),
-    ]))
-
-    elements.append(table)
-
-    doc.build(elements)
-
-    buffer.seek(0)
+    # حفظ في الذاكرة
+    output = io.BytesIO()
+    wb.save(output)
+    output.seek(0)
 
     return send_file(
-        buffer,
+        output,
         as_attachment=True,
-        download_name="employee_report.pdf",
-        mimetype='application/pdf'
+        download_name="employee_report.xlsx",
+        mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     )
 @app.route('/employee/login', methods=['GET', 'POST'])
 def employee_login():
